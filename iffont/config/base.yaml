@@ -1,0 +1,99 @@
+name: test
+seed_everything: 23
+base_learning_rate: 4.5e-06
+use_compile: False
+ckpt_path: null
+save_on_exception: False
+
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  precision: 16-mixed
+  max_epochs: 1
+  log_every_n_steps: 200
+  check_val_every_n_epoch: 1
+  accumulate_grad_batches: 1
+  default_root_dir: ../checkpoints/test
+  logger:
+    class_path: lightning.pytorch.loggers.tensorboard.TensorBoardLogger
+    init_args:
+      save_dir: ${trainer.default_root_dir}
+      name: tb_logs
+
+  callbacks:
+  - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+    init_args:
+      dirpath: ${trainer.default_root_dir}/ckpt
+      filename: '{epoch}_{step}'
+      save_top_k: 1
+      monitor: validation/l_sq
+      mode: min
+      verbose: False
+      every_n_epochs: 1
+      save_last: True
+      train_time_interval: ~
+  - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: epoch
+      log_momentum: False
+  - class_path: util.callbacks.ImageLogger
+    init_args: 
+      batch_frequency: 5100
+      max_images: 4
+      clamp: True
+      increase_log_steps: False
+      from_zero: False
+
+model:
+  class_path: models.net2net_model.Net2NetModel
+  init_args:
+    gpt:
+      class_path: modules.nanogpt.GPT
+      init_args:
+        config:
+          class_path: modules.nanogpt.GPTConfig
+          init_args:
+            vocab_size: 256
+            block_size: 290
+            n_layer: 6
+            n_head: 8
+            n_embd: 256
+            dropout: 0.1
+            bias: False
+    ids_enc:
+      class_path: modules.encoder.IDSEncoder
+      init_args:
+        max_len: 35
+        n_embd: ${model.init_args.gpt.init_args.config.init_args.n_embd}
+        input_mode: ch
+        ids_mode: radical
+    moco_wrapper:
+      class_path: modules.encoder.MoCoWrapper
+      init_args:
+        adapter:
+          class_path: data.adapter.VQAdapter
+          init_args:
+            vqgan_path: ../vqgan-logs/vqgan_openImages_f8_n256
+        c_out: ${model.init_args.gpt.init_args.config.init_args.n_embd}
+        l_ids: ${model.init_args.ids_enc.init_args.max_len}
+        momentum: 0.995
+
+data:
+  class_path: data.datasets_h5.IFFontDataModule
+  init_args:
+    data_dir: ../data
+    h5_filename: if_fonts.h5
+    batch_size: 7
+    val_batch_size: 16
+    num_workers: 0
+  dict_kwargs:
+    is_dev: True
+    only_train_set: True
+    img_size: 128
+    num_refs: 2
+    img_mode: RGB
+    pin_memory: True
+    persistent_workers: False
+    prefetch_factor: ~
+    test_set: ufuc

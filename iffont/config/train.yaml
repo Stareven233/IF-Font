@@ -1,0 +1,41 @@
+use_compile: False
+save_on_exception: False
+
+trainer:
+  precision: 16-mixed
+  max_epochs: 15
+  callbacks:
+  - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+  - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+  - class_path: util.callbacks.ImageLogger
+    init_args: 
+      batch_frequency: 2500
+      max_images: 4
+      clamp: True
+
+model:
+  class_path: models.net2net_model.Net2NetModel
+  init_args:
+    gpt:
+      class_path: modules.nanogpt.GPT
+      init_args:
+        config:
+          class_path: modules.nanogpt.GPTConfig
+          init_args:
+            vocab_size: 256
+            block_size: 290
+            n_layer: 10
+            n_head: 8
+            n_embd: 384
+
+data:
+  class_path: data.datasets_h5.IFFontDataModule
+  init_args:
+    batch_size: 128
+    val_batch_size: 80
+    num_workers: 4
+  dict_kwargs:
+    is_dev: False
+    only_train_set: False
+    num_refs: 3
+    persistent_workers: True
