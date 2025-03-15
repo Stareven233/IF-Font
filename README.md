@@ -6,7 +6,7 @@ By Xinping Chen, Xiao Ke\*, Wenzhong Guo
 
 The official pytorch implementation of the paper `IF-Font: Ideographic Description Sequence-Following Font Generation`.
 
-paper: [[Preprint](data/assets/preprint.pdf)] [NeurIPS]  
+paper: [[Preprint](data/assets/preprint.pdf)] [[NeurIPS](https://proceedings.neurips.cc/paper_files/paper/2024/hash/19ded4cfc36a7feb7fce975393d378fd-Abstract-Conference.html)]  
 code: [[Github](https://github.com/Stareven233/IF-Font)]
 
 ## Training
@@ -113,6 +113,21 @@ python run.py test -c config/base.yaml -c config/train.yaml --ckpt_path=path/to/
 After training:
 
 Please refer to `iffont/inference.ipynb`, complete the configuration in the first cell and execute it.
+
+## Citation
+```BibTeX
+@inproceedings{chen2024iffont,
+ author = {Chen, Xinping and Ke, Xiao and Guo, Wenzhong},
+ booktitle = {Advances in Neural Information Processing Systems},
+ editor = {A. Globerson and L. Mackey and D. Belgrave and A. Fan and U. Paquet and J. Tomczak and C. Zhang},
+ pages = {14177--14199},
+ publisher = {Curran Associates, Inc.},
+ title = {IF-Font: Ideographic Description Sequence-Following Font Generation},
+ url = {https://proceedings.neurips.cc/paper_files/paper/2024/file/19ded4cfc36a7feb7fce975393d378fd-Paper-Conference.pdf},
+ volume = {37},
+ year = {2024}
+}
+```
 
 ## Contact
 If you have any questions, please create a new issue or contact Stareven233@outlook.com.
